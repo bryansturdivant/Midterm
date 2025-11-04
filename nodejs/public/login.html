@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Nerds - Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">📚 Book Nerds</div>
+            <div class="nav-links">
+                <a href="Home.html" class="nav-btn">Home</a>
+                <a href="register.html" class="nav-btn">Register</a>
+                <a href="login.html" class="nav-btn active">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="form-container">
+            <h1>Welcome Back!</h1>
+            <p class="form-subtitle">Login to continue your literary journey</p>
+
+            <form class="login-form">
+                <div class="form-group">
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter your username or email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+
+                <button type="submit" class="submit-btn">Login</button>
+
+                <p class="forgot-password">
+                    <a href="#">Forgot your password?</a>
+                </p>
+            </form>
+
+            <p class="form-footer">
+                Don't have an account? <a href="register.html">Register here</a>
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Book Nerds Forum. All rights reserved.</p>
+    </footer>
+</body>
+</html>
