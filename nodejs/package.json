@@ -1,0 +1,23 @@
+{
+  "name": "midterm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bryansturdivant/Midterm.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bryansturdivant/Midterm/issues"
+  },
+  "homepage": "https://github.com/bryansturdivant/Midterm#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
