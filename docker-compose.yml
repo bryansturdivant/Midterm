@@ -8,8 +8,13 @@ services:
       - NODE_ENV=production
       - PORT=3000
     # No ports exposed - only nginx can access this container
+    volumes:
+      - ./nodejs:/app
+      - /app/node_modules
     networks:
       - app-network
+    ports:
+      - "3000:3000"
 
   # nginx reverse proxy
   nginx:

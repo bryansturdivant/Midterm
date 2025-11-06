@@ -4,19 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Nerds - New Comment</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">📚 Book Nerds</div>
-            <div class="nav-links">
-                <a href="index.html" class="nav-btn">Home</a>
-                <a href="register.html" class="nav-btn">Register</a>
-                <a href="login.html" class="nav-btn">Login</a>
-            </div>
-        </div>
-    </nav>
+    {{> header}}
 
     <main class="container">
         <div class="form-container comment-form-container">
@@ -42,8 +33,6 @@
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2024 Book Nerds Forum. All rights reserved.</p>
-    </footer>
+    {{> footer}}
 </body>
 </html>

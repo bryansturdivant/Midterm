@@ -6,9 +6,18 @@
 
 
 const express = require('express');
+const {engine} = require('express-handlebars');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// Configure Handlebars
+app.engine('hbs', engine({
+  extname: 'hbs',
+  defaultLayout: false,
+  partialsDir: __dirname + '/views/partials'
+}));
+app.set('view engine', 'hbs');
+app.set('views', './views');
 
 //middleware
 app.use(express.json());
@@ -19,7 +28,25 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 //Routes
+app.get('/', (req, res) => {
+  res.render('index');
+});
 
+app.get('/login', (req, res)=>{
+  res.render('login');
+});
+
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+app.get('/comments', (req, res)=> {
+  res.render('comments');
+});
+
+app.get('/comment/new', (req, res) => {
+  res.render('comment_new');
+});
 
 // 404 handler
 app.use((req, res) => {
