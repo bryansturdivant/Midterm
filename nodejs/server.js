@@ -18,6 +18,13 @@ app.use(express.urlencoded({extended: true}));
 //allows me to serve all static files from the public directly 
 app.use(express.static('public'));
 
+//Routes
+
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
 
 //runs the app 
 app.listen(PORT, '0.0.0.0',() => {
