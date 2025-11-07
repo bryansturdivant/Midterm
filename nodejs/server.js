@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 
 //data for comments and users
 
-const comments = [{userName: "StephenKingSucks", comment: "I hate Stephen King", date: "10/25"}, {userName: "IAmStephenKing", comment: "I love Stephen King", date: "11/25"}];
+const comments = [{username: "StephenKingSucks", comment: "I hate Stephen King", date: "10/25"}, {username: "IAmStephenKing", comment: "I love Stephen King", date: "11/25"}];
 const users = [];
 
 // Configure Handlebars
@@ -72,7 +72,7 @@ app.get('/comment/new', (req, res) => {
 app.post('/comments', (req, res) => {
   const newComment = {
     username: req.body.username, // we get this from the form
-    text: req.body.text,  // Also from the form 
+    comment: req.body.comment,  // Also from the form 
   };
   comments.push(newComment); //adds our new comment to the array
   res.redirect('/comments'); //shows the updated list/page

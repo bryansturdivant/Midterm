@@ -14,10 +14,10 @@
             <h1>Share Your Thoughts</h1>
             <p class="form-subtitle">Add your comment to the discussion</p>
 
-            <form class="new-comment-form" action="" method="POST">
+            <form class="new-comment-form" action="/comments" method="POST">
                 <div class="form-group">
-                    <label for="author">Your Name</label>
-                    <input type="text" id="author" name="author" required placeholder="Enter your name or username">
+                    <label for="username">Your Name</label>
+                    <input type="text" id="author" name="username" required placeholder="Enter your name or username">
                 </div>
 
                 <div class="form-group">
@@ -27,7 +27,7 @@
 
                 <div class="form-actions">
                     <button type="submit" class="submit-btn">Post Comment</button>
-                    <a href="comments.html" class="cancel-btn">Cancel</a>
+                    <a href="/comments" class="cancel-btn">Cancel</a>
                 </div>
             </form>
         </div>
