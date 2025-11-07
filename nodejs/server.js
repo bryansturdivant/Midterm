@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 3000;
 
 //data for comments and users
 
-const comments = [{userName: "StephenKingSucks", comment: "I hate Stephen King"}, {userName: "IAmStephenKing", comment: "I love Stephen King",}];
-const users = [];
+const comments = [{userName: "StephenKingSucks", comment: "I hate Stephen King", date: "10/25"}, {userName: "IAmStephenKing", comment: "I love Stephen King", date: "11/25"}];
+const users = [{userName: "StevenKingSucks", password: "Ihatestephen"}, {userName: "IAmStephenKing", password: "blah"}];
 
 
 // Configure Handlebars
@@ -63,6 +63,18 @@ app.post('/comments', (req, res) => {
   };
   comments.push(newComment); //adds our new comment to the array
   res.redirect('/comments'); //shows the updated list/page
+});
+
+app.post('/register', (req, res) => {
+  const newUser = {
+    userName: req.body.username,
+    password: req.body.password
+  };
+  users.push(newUser);
+  console.log('New user registered: ', newUser);
+  console.log('All users: ', users);
+
+  res.redirect('/login');
 });
 
 // 404 handler

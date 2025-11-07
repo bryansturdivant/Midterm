@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Nerds - Register</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     {{> header}}
@@ -15,7 +15,7 @@
             <h1>Create Your Account</h1>
             <p class="form-subtitle">Join the Book Nerds community today!</p>
 
-            <form class="register-form">
+            <form class="register-form" action = "/register" method = "POST">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" required placeholder="Choose a unique username">
@@ -61,7 +61,7 @@
             </form>
 
             <p class="form-footer">
-                Already have an account? <a href="login.html">Login here</a>
+                Already have an account? <a href="/login">Login here</a>
             </p>
         </div>
     </main>
