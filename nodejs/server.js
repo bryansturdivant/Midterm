@@ -10,6 +10,14 @@ const {engine} = require('express-handlebars');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+
+//data for comments and users
+
+const comments = [{userName: "StephenKingSucks", comment: "I hate Stephen King"}, {userName: "IAmStephenKing", comment: "I love Stephen King",}];
+const users = [];
+
+
 // Configure Handlebars
 app.engine('hbs', engine({
   extname: 'hbs',
@@ -41,11 +49,20 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/comments', (req, res)=> {
-  res.render('comments');
+  res.render('comments', {comments: comments});// comments:comments is passing the comments into view
 });
 
 app.get('/comment/new', (req, res) => {
   res.render('comment_new');
+});
+
+app.post('/comments', (req, res) => {
+  const newComment = {
+    username: req.body.username, // we get this from the form
+    text: req.body.text,  // Also from the form 
+  };
+  comments.push(newComment); //adds our new comment to the array
+  res.redirect('/comments'); //shows the updated list/page
 });
 
 // 404 handler

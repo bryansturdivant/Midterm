@@ -15,11 +15,12 @@
             <p class="page-subtitle">Join the conversation with fellow book lovers</p>
 
             <div class="comments-section">
-                <!-- Sample Comment 1 -->
+{{!This is where we begin our handle bar 'loop' with Each and our comments object}}
+                {{#each comments}}               
                 <div class="comment-card">
                     <div class="comment-header">
                         <div class="author-info">
-                            <div class="avatar">JD</div>
+                            
                             <div class="author-details">
                                 <h3 class="author-name">JohnDoe</h3>
                                 <span class="comment-date">November 3, 2024</span>
@@ -30,40 +31,7 @@
                         <p>Just finished "The Midnight Library" and I'm absolutely blown away! The concept of exploring different life paths was so thought-provoking. Has anyone else read it? Would love to hear your thoughts!</p>
                     </div>
                 </div>
-
-                <!-- Sample Comment 2 -->
-                <div class="comment-card">
-                    <div class="comment-header">
-                        <div class="author-info">
-                            <div class="avatar">SB</div>
-                            <div class="author-details">
-                                <h3 class="author-name">BookwormSarah</h3>
-                                <span class="comment-date">November 2, 2024</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="comment-body">
-                        <p>Looking for recommendations! I loved "Project Hail Mary" and "The Martian". Any similar sci-fi books with humor and great characters?</p>
-                    </div>
-                </div>
-
-                <!-- Sample Comment 3 -->
-                <div class="comment-card">
-                    <div class="comment-header">
-                        <div class="author-info">
-                            <div class="avatar">MR</div>
-                            <div class="author-details">
-                                <h3 class="author-name">MysteryReader</h3>
-                                <span class="comment-date">November 1, 2024</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="comment-body">
-                        <p>Can we talk about how incredible Agatha Christie's plot twists are? I've read "And Then There Were None" three times and I'm still amazed by the ending!</p>
-                    </div>
-                </div>
-
-                <!-- Add more comments here as needed -->
+                {{/each}}
 
             </div>
         </div>
