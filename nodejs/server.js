@@ -7,6 +7,7 @@
 
 const express = require('express');
 const {engine} = require('express-handlebars');
+const session = require('express-session')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,8 +16,7 @@ const PORT = process.env.PORT || 3000;
 //data for comments and users
 
 const comments = [{userName: "StephenKingSucks", comment: "I hate Stephen King", date: "10/25"}, {userName: "IAmStephenKing", comment: "I love Stephen King", date: "11/25"}];
-const users = [{userName: "StevenKingSucks", password: "Ihatestephen"}, {userName: "IAmStephenKing", password: "blah"}];
-
+const users = [];
 
 // Configure Handlebars
 app.engine('hbs', engine({
@@ -34,6 +34,19 @@ app.use(express.urlencoded({extended: true}));
 
 //allows me to serve all static files from the public directly 
 app.use(express.static('public'));
+
+//session middleware to handle cookies automatically
+app.use(session({
+  secret: 'book-lovers-key-2025',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+      secure: false, // Set to true if using HTTPS
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+
 
 //Routes
 app.get('/', (req, res) => {
@@ -67,14 +80,42 @@ app.post('/comments', (req, res) => {
 
 app.post('/register', (req, res) => {
   const newUser = {
-    userName: req.body.username,
-    password: req.body.password
+    username: req.body.username,
+    password: req.body.password,
+    email: req.body.email,
+    favoriteGenre: req.body['favorite-genre']
   };
   users.push(newUser);
   console.log('New user registered: ', newUser);
   console.log('All users: ', users);
 
   res.redirect('/login');
+});
+
+app.post('/login', (req, res) => {
+
+  const {username, password} = req.body; //fasthand instead of listing out both
+
+  const user = users.find(u => u.username === username && u.password === password);// finds users in the user aray
+
+  if (user) {
+    req.session.user = username;
+
+    console.log("User logged in: ", username);
+    console.log("Session ID: ", req.session.id);
+    res.redirect('/comments');//maybe make a welcome 'user name' at homepage instead
+  }
+  else{
+    console.log("login failed for: ", username),
+    res.redirect('login');
+  }
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  console.log('User logged out');
+  res.redirect('/');
 });
 
 // 404 handler

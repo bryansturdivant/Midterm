@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Nerds - Login</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     {{> header}}
@@ -14,7 +14,7 @@
             <h1>Welcome Back!</h1>
             <p class="form-subtitle">Login to continue your literary journey</p>
 
-            <form class="login-form">
+            <form class="login-form" action ="/login" method="POST">
                 <div class="form-group">
                     <label for="username">Username or Email</label>
                     <input type="text" id="username" name="username" required placeholder="Enter your username or email">
@@ -38,7 +38,7 @@
             </form>
 
             <p class="form-footer">
-                Don't have an account? <a href="register.html">Register here</a>
+                Don't have an account? <a href="/register">Register here</a>
             </p>
         </div>
     </main>
