@@ -2,9 +2,18 @@
     <nav class="nav-container">
         <div class="logo">📚 Book Nerds</div>
         <div class="nav-links">
-            <a href="/" class="nav-btn">Home</a>
-            <a href="/login" class="nav-btn">Login</a>
-            <a href="/register" class="nav-btn">Register</a>
+            <a href="/" class = "nav-btn">Home</a>
+            {{#if user}}
+                <span class="nav-btn">Welcome, {{user}}!</span>
+                <a href="/comments" class="nav-btn">Discussion</a>
+                <a href="/comment/new" class="nav-btn">New Comment</a>
+                <a href="/logout" class="nav-btn">Logout</a>
+            {{else}}
+                <span class="nav-btn">Welcome, Guest!</span>
+                <a href="/comments" class="nav-btn">Discussion</a>
+                <a href="/login" class="nav-btn">Login</a>
+                <a href="/register" class="nav-btn">Register</a>
+            {{/if}}
         </div>
     </nav>
 </header>

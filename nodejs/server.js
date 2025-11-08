@@ -46,7 +46,11 @@ app.use(session({
   }
 }));
 
-
+//This allows user info to be passed in to every route without doing it for each one
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  next();
+});
 
 //Routes
 app.get('/', (req, res) => {
@@ -66,13 +70,20 @@ app.get('/comments', (req, res)=> {
 });
 
 app.get('/comment/new', (req, res) => {
-  res.render('comment_new');
+  if(req.session.user){
+    res.render('comment_new');
+  }
+  else{
+    res.redirect('/login');
+  }
+
 });
 
 app.post('/comments', (req, res) => {
   const newComment = {
-    username: req.body.username, // we get this from the form
+    username: req.session.user || "Guest", //Username if logged in, guest if not - all from session
     comment: req.body.comment,  // Also from the form 
+    date: new Date().toLocaleDateString()
   };
   comments.push(newComment); //adds our new comment to the array
   res.redirect('/comments'); //shows the updated list/page
