@@ -195,6 +195,21 @@ footer {
     margin-top: 3rem;
 }
 
+/* error message */
+.error-message {
+    background-color: #fee;
+    border: 1px solid #c00;
+    color: #c00;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.error-message p {
+    margin: 0;
+    font-weight: bold;
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {

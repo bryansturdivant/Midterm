@@ -74,7 +74,9 @@ app.get('/comment/new', (req, res) => {
     res.render('comment_new');
   }
   else{
-    res.redirect('/login');
+    return res.render('login', {
+      error: "You must be logged in to post a comment!",
+    });
   }
 
 });
@@ -90,6 +92,20 @@ app.post('/comments', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+
+  //check if username exists
+
+  const {username, password} = req.body;
+  const existinguser = users.find(u => u.username === username)
+
+  if (existinguser) {
+    return res.render('register', {
+      error: "Username already exists. Please choose a different username.",
+    });
+  }
+
+
+
   const newUser = {
     username: req.body.username,
     password: req.body.password,
@@ -117,8 +133,11 @@ app.post('/login', (req, res) => {
     res.redirect('/comments');//maybe make a welcome 'user name' at homepage instead
   }
   else{
-    console.log("login failed for: ", username),
-    res.redirect('login');
+    console.log("login failed for: ", username);
+    return res.render('login', {
+      error: "Username or Password is incorrect. Please try again.",
+    });
+
   }
 });
 

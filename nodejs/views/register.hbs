@@ -15,6 +15,11 @@
             <h1>Create Your Account</h1>
             <p class="form-subtitle">Join the Book Nerds community today!</p>
 
+            {{#if error}}
+                <div class = "error-message">
+                    <p>❌ {{error}}</p>
+                </div>
+            {{/if}}
             <form class="register-form" action = "/register" method = "POST">
                 <div class="form-group">
                     <label for="username">Username</label>

@@ -13,6 +13,12 @@
         <div class="form-container">
             <h1>Welcome Back!</h1>
             <p class="form-subtitle">Login to continue your literary journey</p>
+            {{#if error}}
+                <div class="error-message">
+                    <p>❌ {{error}}</p>
+                </div>
+            {{/if}}
+
 
             <form class="login-form" action ="/login" method="POST">
                 <div class="form-group">
