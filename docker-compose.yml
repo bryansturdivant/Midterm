@@ -27,3 +27,4 @@ services:
 networks:
   app-network:
     driver: bridge
+http://143.198.9.242/
