@@ -7,7 +7,6 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-
     networks:
       - app-network
 
@@ -27,4 +26,3 @@ services:
 networks:
   app-network:
     driver: bridge
-http://143.198.9.242/
