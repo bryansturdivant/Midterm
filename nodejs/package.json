@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/bryansturdivant/Midterm#readme",
   "dependencies": {
+    "better-sqlite3": "^12.5.0",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.3",
     "express-session": "^1.18.2",

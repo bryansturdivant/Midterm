@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 
-//data for comments and users
+//data for comments and users - all needs to be replaced with sql db stuff - to do later 
 
 const comments = [{username: "StephenKingSucks", comment: "I hate Stephen King", date: "10/25"}, {username: "IAmStephenKing", comment: "I love Stephen King", date: "11/25"}];
 const users = [];
