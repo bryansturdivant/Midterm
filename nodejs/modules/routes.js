@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const {comments, users} = require('./data');
+const {comments, users} = require('../data');
 //This allows user info to be passed in to every route without doing it for each one
   
 //Routes
