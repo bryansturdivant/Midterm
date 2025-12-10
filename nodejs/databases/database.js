@@ -75,6 +75,8 @@ insert.run('blahXYZ', 'boop4@gmail.com', 'password', 'blahSDisplay4');
 
 
 const users = db.prepare('SELECT * FROM users').all();
+
+
 users.forEach((user) => {
     console.log(`ID: ${user.id}, username: ${user.email}, email: ${user.email}, password: ${user.password}, Display Name: ${user.display_name}, created at: ${user.created_at}`);
 });
