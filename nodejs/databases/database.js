@@ -6,42 +6,85 @@ const path = require('path');
 const dbPath = path.join(__dirname, 'myapp.db');
 const db = new Database(dbPath);
 
+console.log("Printing from the top");
+db.exec(`DROP TABLE IF EXISTS users;`);
 db.exec(
     `CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
+        username TEXT NOT NULL,
+        email TEXT NOT NULL,
         password TEXT NOT NULL,
-        display_name TEXT UNIQE NOT NULL,
+        display_name TEXT NOT NULL,
         customization_field TEXT,
         account_lockout TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`
 );
 
+console.log("printing after users table");
+
 db.exec(
     `CREATE TABLE IF NOT EXISTS sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
-        session_data INT
+        userId INTEGER REFERENCES users(id)
     )`
 );
+
+console.log("Printing after sessions")
 
 db.exec(
     `CREATE TABLE IF NOT EXISTS comments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        author TEXT FOREIGN KEY REFERENCES users(display_name)
+        userId INTEGER REFERENCES users(id),
         text TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)`
 );
 
+console.log("printing after comments")
+
 db.exec(
     `CREATE TABLE IF NOT EXISTS login_attempts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT FOREIGN KEY REFERENCES users(username),
+        userId INTEGER REFERENCES users(id),
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-        success/failured TEXT)`
+        success_failure TEXT
+        )`
 );
 
+console.log('printing after login attempts')
+
+//for resetting passwords - i'll have to look into this a little bit more 
+db.exec(
+    `CREATE TABLE IF NOT EXISTS reset_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER REFERENCES users(id)
+        )`
+);
+
+console.log("printing after resetting password");
+
+const insert = db.prepare('INSERT INTO users (username, email, password, display_name) VALUES (?, ?, ?, ?)');
+insert.run('blahS', 'boop@gmail.com', 'password', 'blahSDisplay0');
+console.log('inserted');
+insert.run('blahZZZ', 'boop1@gmail.com', 'password', 'blahSDisplay1');
+console.log('inserted');
+insert.run('blahIII', 'boop2@gmail.com', 'password', 'blahSDisplay2');
+console.log('inserted');
+insert.run('blahXXX', 'boop3@gmail.com', 'password', 'blahSDisplay3');
+console.log('inserted');
+insert.run('blahXYZ', 'boop4@gmail.com', 'password', 'blahSDisplay4');
+
+
+const users = db.prepare('SELECT * FROM users').all();
+users.forEach((user) => {
+    console.log(`ID: ${user.id}, username: ${user.email}, email: ${user.email}, password: ${user.password}, Display Name: ${user.display_name}, created at: ${user.created_at}`);
+});
+
+
+
+
+
 module.exports = db;
+
 //Users: username, pasword(hashed), email, display name, profile customization fields, account lockout fields
 //Sessions: session data linked to users
 //Comments: author(linked to user), text, timestamps, etc
