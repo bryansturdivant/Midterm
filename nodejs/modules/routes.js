@@ -3,7 +3,9 @@
 const express = require('express');
 const router = express.Router();
 
-const {comments, users} = require('../data');
+//const {comments, users} = require('../data');
+
+const db = require('../databases/database');
 //This allows user info to be passed in to every route without doing it for each one
   
 //Routes
@@ -20,11 +22,19 @@ router.get('/register', (req, res) => {
 });
 
 router.get('/comments', (req, res)=> {
-  res.render('comments', {comments: comments});// comments:comments is passing the comments into view
+  //res.render('comments', {comments: comments});// comments:comments is passing the comments into view
+  const comments = db.prepare(
+    `SELECT comments.comment, comments.timestamp AS date, users.username
+    FROM comments
+    LEFT JOIN users ON users.id = comments.userId
+    ORDER BY comments.timestamp DESC`
+  ).all();
+
+  res.render('comments', {comments});
 });
 
 router.get('/comment/new', (req, res) => {
-  if(req.session.user){
+  if(req.session.userId){
     res.render('comment_new');
   }
   else{
@@ -32,47 +42,50 @@ router.get('/comment/new', (req, res) => {
       error: "You must be logged in to post a comment!",
     });
   }
+});
 
 
 
 
 //Posting comments 
-
 router.post('/comments', (req, res) => {
-    const newComment = {
-      username: req.session.user || "Guest", //Username if logged in, guest if not - all from session
-      comment: req.body.comment,  // Also from the form 
-      date: new Date().toLocaleDateString()
-    };
-    comments.push(newComment); //adds our new comment to the array
-    res.redirect('/comments'); //shows the updated list/page
+
+
+
+  if(!req.session.userId){
+    return res.render('login', {error:"You must be logged in to post a comment"});
+  }
+  //prepares a new comment 
+  const insertComment = db.prepare(
+    `INSERT INTO comments (userId, comment) VALUES (?, ?)`
+  )
+  //inserts the new comment into the comments table 
+  insertComment.run(req.session.userId, req.body.comment);
+
+  res.redirect('/comments'); //shows the updated list/page
   });
   
 router.post('/register', (req, res) => {
 
+
+  const {username, email, password, display_name} = req.body;
   //check if username exists
 
-  const {username, password} = req.body;
-  const existinguser = users.find(u => u.username === username)
+  const existingUser = db.prepare(
+    `SELECT * FROM users WHERE username = ?`
+  ).get(username);
 
-  if (existinguser) {
+
+  if (existingUser) {
     return res.render('register', {
       error: "Username already exists. Please choose a different username.",
     });
   }
 
-
-
-  const newUser = {
-    username: req.body.username,
-    password: req.body.password,
-    email: req.body.email,
-    favoriteGenre: req.body['favorite-genre']
-  };
-  users.push(newUser);
-  console.log('New user registered: ', newUser);
-  console.log('All users: ', users);
-
+  db.prepare(
+    `INSERT INTO users (username, email, password, display_name) 
+    VALUES (?, ?, ?, ?)`
+  ).run(username, email, password, display_name);
   res.redirect('/login');
 });
 
@@ -82,14 +95,16 @@ router.post('/login', (req, res) => {
 
   const {username, password} = req.body; //fasthand instead of listing out both
 
-  const user = users.find(u => u.username === username && u.password === password);// finds users in the user aray
+  // const user = users.find(u => u.username === username && u.password === password);// finds users in the user aray
+
+  const user = db.prepare(
+    `SELECT * FROM users WHERE username = ? AND password = ?`
+  ).get(username, password);
 
   if (user) {
-    req.session.user = username;
-
-    console.log("User logged in: ", username);
-    console.log("Session ID: ", req.session.id);
-    res.redirect('/comments');//maybe make a welcome 'user name' at homepage instead
+    req.session.userId = user.id;
+    req.session.username = user.username;
+    return res.redirect('/comments');//maybe make a welcome 'user name' at homepage instead
   }
   else{
     console.log("login failed for: ", username);
@@ -105,9 +120,6 @@ router.get('/logout', (req, res) => {
   req.session.destroy();
   console.log('User logged out');
   res.redirect('/');
-});
-
-
 });
 
 module.exports = router; 
