@@ -7,7 +7,17 @@ const dbPath = path.join(__dirname, 'myapp.db');
 const db = new Database(dbPath);
 
 console.log("Printing from the top");
+
+
+//JUST FOR TESTING, MAKE SURE TO REMOVE LATER TO AVOID HEADACHE
+db.exec(`DROP TABLE IF EXISTS comments;`);
+db.exec(`DROP TABLE IF EXISTS sessions;`);
+db.exec(`DROP TABLE IF EXISTS login_attempts;`);
+db.exec(`DROP TABLE IF EXISTS reset_tokens;`);
 db.exec(`DROP TABLE IF EXISTS users;`);
+
+
+
 db.exec(
     `CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +30,14 @@ db.exec(
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`
 );
 
+db.prepare(
+    `INSERT INTO users (username, email, password, display_name) VALUES (?, ?, ?, ?)`
+).run("testuser", "testemail", "testpassword", "testdisplayname");
+
+
+
 console.log("printing after users table");
+
 
 db.exec(
     `CREATE TABLE IF NOT EXISTS sessions (
@@ -29,7 +46,11 @@ db.exec(
     )`
 );
 
+
+
 console.log("Printing after sessions")
+
+
 
 db.exec(
     `CREATE TABLE IF NOT EXISTS comments (
@@ -38,6 +59,10 @@ db.exec(
         comment TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)`
 );
+
+db.prepare(
+    `INSERT INTO comments (userId, comment) VALUES (?, ?)`
+).run(1, "This is the first comment!");
 
 console.log("printing after comments")
 
