@@ -140,4 +140,4 @@ vite.config.ts.timestamp-*
 
 # Nginx Proxy Manager
 
-nginx/letsencrypt/
+nginx/letsencrypt/nginx/data/database.sqlite
