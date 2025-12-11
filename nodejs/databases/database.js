@@ -35,7 +35,7 @@ db.exec(
     `CREATE TABLE IF NOT EXISTS comments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId INTEGER REFERENCES users(id),
-        text TEXT,
+        comment TEXT,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)`
 );
 
