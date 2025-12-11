@@ -7,6 +7,8 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+    volumes:
+      - ./nodejs/databases:/app/databases
     networks:
       - app-network
 
@@ -24,6 +26,7 @@ services:
      # - ./nodejs:/nodejs
       - ./nginx/data:/data
       - ./nginx/letsencrypt:/etc/letsencrypt
+
     networks:
       - app-network
 

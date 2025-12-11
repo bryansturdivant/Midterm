@@ -5,15 +5,19 @@
 const express = require('express');
 const {engine} = require('express-handlebars');
 const session = require('express-session')
+const SQLiteStore = require('./databases/sessions');
+const path = require('path');
+const {handleError, notFound} = require('./modules/error-handler')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const sessionStore = new SQLiteStore({
+  db: path.join(__dirname, 'databases', 'sessions.db'),
+  table: 'sessions'
+});
+console.log('Full database path:', path.join(__dirname, 'databases', 'sessions.db'));
 
-//data for comments and users - all needs to be replaced with sql db stuff - to do later 
-
-const comments = [{username: "StephenKingSucks", comment: "I hate Stephen King", date: "10/25"}, {username: "IAmStephenKing", comment: "I love Stephen King", date: "11/25"}];
-const users = [];
 
 // Configure Handlebars
 app.engine('hbs', engine({
@@ -31,7 +35,8 @@ app.use(express.static('public'));
 
 //session middleware to handle cookies automatically
 app.use(session({
-  secret: 'book-lovers-key-2025',
+  store: sessionStore, //stores sessions in sqlite 
+  secret: 'book-lovers-key-2025',//session secret
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -55,6 +60,9 @@ app.use('/', routes);
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
+// Error handlers must be last
+app.use(notFound);        // 404 handler
+app.use(handleError);     // General error handler
 
 //runs the app 
 app.listen(PORT, '0.0.0.0',() => {
