@@ -2,11 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
-
-//const {comments, users} = require('../data');
+const path = require('path');
 
 const db = require('../databases/database');
-//This allows user info to be passed in to every route without doing it for each one
+const {validatePassword, hashPassword, comparePassword} = require('./auth');
+
   
 //Routes
 router.get('/', (req, res) => {
@@ -65,10 +65,20 @@ router.post('/comments', (req, res) => {
   res.redirect('/comments'); //shows the updated list/page
   });
   
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
 
 
   const {username, email, password, display_name} = req.body;
+
+
+  // Validate password requirements
+  const validation = validatePassword(password);
+  if (!validation.valid) {
+    const errorsText = validation.errors.join(', ');
+    return res.render('register', {
+      error: "Password does not meet the requirements",
+    });
+  }
   //check if username exists
 
   const existingUser = db.prepare(
@@ -81,44 +91,69 @@ router.post('/register', (req, res) => {
       error: "Username already exists. Please choose a different username.",
     });
   }
+  // Hash the password before storing
+  const passwordHash = await hashPassword(password);
 
   db.prepare(
     `INSERT INTO users (username, email, password, display_name) 
     VALUES (?, ?, ?, ?)`
-  ).run(username, email, password, display_name);
+  ).run(username, email, passwordHash, display_name);
   res.redirect('/login');
 });
 
 //login
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
 
   const {username, password} = req.body; //fasthand instead of listing out both
 
   // const user = users.find(u => u.username === username && u.password === password);// finds users in the user aray
 
   const user = db.prepare(
-    `SELECT * FROM users WHERE username = ? AND password = ?`
-  ).get(username, password);
+    `SELECT * FROM users WHERE username = ?`
+  ).get(username);
 
-  if (user) {
-    req.session.userId = user.id;
-    req.session.username = user.username;
-    return res.redirect('/comments');//maybe make a welcome 'user name' at homepage instead
-  }
-  else{
-    console.log("login failed for: ", username);
+  // if (user) {
+  //   req.session.userId = user.id;
+  //   req.session.username = user.username;
+  //   return res.redirect('/comments');//maybe make a welcome 'user name' at homepage instead
+  // }
+  // else{
+  //   console.log("login failed for: ", username);
+  //   return res.render('login', {
+  //     error: "Username or Password is incorrect. Please try again.",
+  //   });
+  // }
+
+  if (!user) {
     return res.render('login', {
-      error: "Username or Password is incorrect. Please try again.",
-    });
-
+      error: "Username or Password is incorrect. Please try again."
+    })
   }
+  const passwordMatch = await comparePassword(password, user.password);
+  if (!passwordMatch){
+    return res.render('login', {
+      error: "Username or Password is incorrect. Please try again."
+    })
+  }
+  //update last login???
+  // db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?')
+  // .run(user.id);
+
+  req.session.userId = user.id;
+  req.session.username = user.username;
+  res.redirect('/comments');
 });
 
 // Logout route
 router.get('/logout', (req, res) => {
   req.session.destroy();
   console.log('User logged out');
+  res.redirect('/');
+});
+
+router.post('/logout', (req, res) => {
+  req.session.destroy();
   res.redirect('/');
 });
 

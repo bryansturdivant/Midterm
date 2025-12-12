@@ -1,12 +1,10 @@
-//Testing for cyberduck
-// node server.js
-//ssh -L 3000:localhost:3000 bsturdivant@143.198.9.242// In separate terminal while the server is running in another
-//then: http://localhost:3000/Home.html in browser 
+
 const express = require('express');
 const {engine} = require('express-handlebars');
 const session = require('express-session')
 const SQLiteStore = require('./databases/sessions');
 const path = require('path');
+const authRoutes = require('./modules/auth');
 const {handleError, notFound} = require('./modules/error-handler')
 
 const app = express();
