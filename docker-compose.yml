@@ -5,10 +5,14 @@ services:
     container_name: backend-nodejs
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - PORT=3000
     volumes:
       - ./nodejs/databases:/app/databases
+      - ./nodejs:/app:cached
+      - /app/node_modules
+    ports:
+      - "3000:3000"
     networks:
       - app-network
 

@@ -70,10 +70,13 @@ db.exec(
     `CREATE TABLE IF NOT EXISTS login_attempts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId INTEGER REFERENCES users(id),
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-        success_failure TEXT
+        ip_address TEXT NOT NULL,
+        attempt_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        success INTEGER DEFAULT 0
         )`
 );
+
+
 
 console.log('printing after login attempts')
 

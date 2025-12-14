@@ -18,6 +18,11 @@
             {{#if error}}
                 <div class = "error-message">
                     <p>❌ {{error}}</p>
+                    <ul>
+                        {{#each errorList}}
+                        <li>{{this}}</li>
+                        {{/each}}
+                    </ul>
                 </div>
             {{/if}}
             <form class="register-form" action = "/register" method = "POST">

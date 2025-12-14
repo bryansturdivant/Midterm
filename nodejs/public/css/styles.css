@@ -210,6 +210,10 @@ footer {
     margin: 0;
     font-weight: bold;
 }
+.error-message ul {
+  padding-left: 0;
+  list-style-position: inside;
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -229,4 +233,71 @@ footer {
     .features {
         grid-template-columns: 1fr;
     }
+}
+
+.profile-section h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 2rem;
+}
+
+.profile-section .card {
+    background-color: white;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-section .card h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.profile-section .card h3 {
+    color: #34495e;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.profile-section label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+}
+
+.profile-section input[type="text"],
+.profile-section input[type="password"],
+.profile-section input[type="email"],
+.profile-section input[type="color"] {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.profile-section .btn {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background-color: #e74c3c;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.profile-section .btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.02);
 }

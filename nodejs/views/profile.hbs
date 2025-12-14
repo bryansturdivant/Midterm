@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Book Nerds</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    {{> header}}
+
+    <main class="container">
+        <section class="profile-section">
+            
+
+            <h1>{{user.display_name}}'s Profile Page</h1>
+
+            <!-- Account Management -->
+            <div class="card">
+                <h2>Account Management</h2>
+
+                <form id="change-password-form">
+                    <h3>Change Password</h3>
+                    <label for="current-password">Current Password</label>
+                    <input type="password" id="current-password" name="currentPassword" required>
+
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" name="newPassword" required>
+
+                    <button type="submit" class="btn">Update Password</button>
+                </form>
+
+                <form id="change-email-form">
+                    <h3>Change Email</h3>
+                    <label for="current-password-email">Current Password</label>
+                    <input type="password" id="current-password-email" name="currentPasswordEmail" required>
+
+                    <label for="new-email">New Email</label>
+                    <input type="email" id="new-email" name="newEmail" required>
+
+                    <button type="submit" class="btn">Update Email</button>
+                </form>
+
+                <form id="change-display-name-form">
+                    <h3>Change Display Name</h3>
+                    <label for="display-name">New Display Name</label>
+                    <input type="text" id="display-name" name="displayName" maxlength="30" required>
+
+                    <button type="submit" class="btn">Update Display Name</button>
+                </form>
+            </div>
+
+            <!-- Profile Customization -->
+            <div class="card">
+                <h2>Profile Customization</h2>
+
+                <form id="profile-customization-form">
+                    <label for="profile-color">Profile Name Color</label>
+                    <input type="color" id="profile-color" name="profileColor" value="#e74c3c">
+
+                    <button type="submit" class="btn">Save Customization</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    {{> footer}}
+</body>
+</html>

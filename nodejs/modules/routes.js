@@ -21,10 +21,19 @@ router.get('/register', (req, res) => {
   res.render('register');
 });
 
+router.get('/profile', (req, res) => {
+  const user = db.prepare(
+    `SELECT id, username, display_name, email FROM users WHERE id = ?
+    `
+  ).get(req.session.userId);
+
+  res.render('profile', {user});
+});
+
 router.get('/comments', (req, res)=> {
   //res.render('comments', {comments: comments});// comments:comments is passing the comments into view
   const comments = db.prepare(
-    `SELECT comments.comment, comments.timestamp AS date, users.username
+    `SELECT comments.comment, comments.timestamp AS date, users.username, users.display_name
     FROM comments
     LEFT JOIN users ON users.id = comments.userId
     ORDER BY comments.timestamp DESC`
@@ -74,9 +83,10 @@ router.post('/register', async (req, res) => {
   // Validate password requirements
   const validation = validatePassword(password);
   if (!validation.valid) {
-    const errorsText = validation.errors.join(', ');
+    //const errorsText = validation.errors.join(', ');
     return res.render('register', {
       error: "Password does not meet the requirements",
+      errorList: validation.errors
     });
   }
   //check if username exists
@@ -147,14 +157,26 @@ router.post('/login', async (req, res) => {
 
 // Logout route
 router.get('/logout', (req, res) => {
-  req.session.destroy();
+  req.session.destroy(error => {
+    if (error) {
+      console.error('Error destroying session:', error);
+      return res.status(500).send('Internal Server error')
+    }
   console.log('User logged out');
   res.redirect('/');
+  });
 });
 
 router.post('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/');
+
+  req.session.destroy(error => {
+    if (error) {
+      console.error('Error destroying sesssion', error);
+      return res.status(500).send('Internal Server error')
+    }
+    res.redirect('/');
+  });
+
 });
 
 module.exports = router; 
