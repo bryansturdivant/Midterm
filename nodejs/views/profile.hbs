@@ -16,7 +16,7 @@
             <h1>{{user.display_name}}'s Profile Page</h1>
             {{#if error}}
                 <div class = "error-message">
-                    <p>❌ {{error}}</p>
+                    <p> {{error}}</p>
                     <ul>
                         {{#each errorList}}
                         <li>{{this}}</li>
@@ -24,7 +24,11 @@
                     </ul>
                 </div>
             {{/if}}
-
+            {{#if success}}
+                <div class = "success-message">
+                    <p>✅ {{success}}</p>
+                </div>
+            {{/if}}
             <!-- Account Management -->
             <div class="card">
                 <h2>Account Management</h2>

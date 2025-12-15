@@ -3,9 +3,11 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-
 const db = require('../databases/database');
 const {validatePassword, hashPassword, comparePassword} = require('./auth');
+const loginTracker = require('./login-tracker');
+const {checkLoginLockout, getClientIP} = require('./auth-middleware')
+
 
   
 //Routes
@@ -53,6 +55,36 @@ router.get('/comment/new', (req, res) => {
   }
 });
 
+// Logout route
+router.get('/logout', (req, res) => {
+  req.session.destroy(error => {
+    if (error) {
+      console.error('Error destroying session:', error);
+      return res.status(500).send('Internal Server error')
+    }
+  console.log('User logged out');
+  res.redirect('/');
+  });
+});
+
+/*
+ GET /me - Get current user info (requires authentication)
+ */
+router.get('/me', (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  
+  const user = db.prepare('SELECT id, username, created_at, last_login FROM users WHERE id = ?')
+    .get(req.session.userId);
+  
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  
+  res.json({ user });
+});
+
 
 
 
@@ -76,9 +108,12 @@ router.post('/comments', (req, res) => {
   
 router.post('/register', async (req, res) => {
 
-
+try{
   const {username, email, password, display_name} = req.body;
-
+    // Validate input
+  if (!username || !password) {
+    return res.render('register', {error: 'Must enter a username and password'});
+    }
 
   // Validate password requirements
   const validation = validatePassword(password);
@@ -108,53 +143,57 @@ router.post('/register', async (req, res) => {
     `INSERT INTO users (username, email, password, display_name) 
     VALUES (?, ?, ?, ?)`
   ).run(username, email, passwordHash, display_name);
-  res.redirect('/login');
+    res.redirect('/login');
+}
+  catch(error){
+    console.error('Registration Error: ', error);
+    res.render('register', {error: 'Internal server error'})
+
+  }
+
 });
 
 //login
 
-router.post('/login', async (req, res) => {
+router.post('/login', checkLoginLockout, async (req, res) => {
 
   const {username, password} = req.body; //fasthand instead of listing out both
+  const ipAddress = getClientIP(req)
 
   // const user = users.find(u => u.username === username && u.password === password);// finds users in the user aray
 
-  const user = db.prepare(
-    `SELECT * FROM users WHERE username = ?`
-  ).get(username);
+  const user = db.prepare(`SELECT * FROM users WHERE username = ?`).get(username);
 
 
   if (!user) {
+    loginTracker.recordAttempt(ipAddress, username, false);
     return res.render('login', {
       error: "Username or Password is incorrect. Please try again."
     })
   }
+  //compare the entered password with the stored hashed password
   const passwordMatch = await comparePassword(password, user.password);
+
+
   if (!passwordMatch){
+    loginTracker.recordAttempt(ipAddress, username, false);
     return res.render('login', {
       error: "Username or Password is incorrect. Please try again."
     })
   }
-  //update last login???
-  // db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?')
-  // .run(user.id);
+  //successful login
+  loginTracker.recordAttempt(ipAddress, username, true);
 
+  //update last login time
+  db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(user.id);
+
+  //This is where we create a session - super important
   req.session.userId = user.id;
   req.session.username = user.username;
   res.redirect('/comments');
 });
 
-// Logout route
-router.get('/logout', (req, res) => {
-  req.session.destroy(error => {
-    if (error) {
-      console.error('Error destroying session:', error);
-      return res.status(500).send('Internal Server error')
-    }
-  console.log('User logged out');
-  res.redirect('/');
-  });
-});
+
 
 router.post('/logout', (req, res) => {
 
@@ -171,14 +210,15 @@ router.post('/logout', (req, res) => {
 
 router.post('/profile', async (req, res) => {
   const username = req.session.username;
+  const user = db.prepare(`SELECT * FROM users WHERE username = ?`).get(username);
+  if (!user){
+    return res.redirect('login')
+  }
   
   if(req.body.newPassword){
     const currentPass = req.body.currentPassword;
 
-    const user = db.prepare(
-      `SELECT * FROM users WHERE username = ?`
-    ).get(username);
-    
+
     const comparedPassword = await comparePassword(currentPass, user.password);
     
     if(!comparedPassword){
@@ -206,6 +246,52 @@ router.post('/profile', async (req, res) => {
     
     return res.render('profile', {
       success: "Password successfully updated", 
+      user: updatedUser
+    });
+  }
+  else if(req.body.newEmail){
+    const newEmail = req.body.newEmail;
+    const currentPass = req.body.currentPasswordEmail;
+    const comparedPassword = await comparePassword(currentPass, user.password);
+    
+    if(!comparedPassword){
+      return res.render('profile', {
+        error: "Must enter correct password to change to your email",
+        user
+      });
+    }
+    
+    db.prepare('UPDATE users SET email = ? WHERE username = ?').run(newEmail, username);
+    const updatedUser = db.prepare('SELECT id, username, display_name, email FROM users WHERE username = ?').get(username);
+
+    return res.render('profile', {
+      success: "Email successfully updated",
+      user: updatedUser
+    });
+  }
+  else if (req.body.displayName){
+    const newDisplay = req.body.displayName;
+
+    if(!newDisplay){
+      return res.render('profile', {
+        error: "Display name can't be empty",
+        user
+      });
+    }
+    const result = db.prepare(
+      'UPDATE users SET display_name = ? WHERE id = ?').run(newDisplay, req.session.userId);
+
+  // Safety check for debugging
+  if (result.changes === 0) {
+    return res.render('profile', {
+      error: "Display name was not updated",
+      user
+    });
+  }
+
+    const updatedUser = db.prepare('SELECT id, username, display_name, email FROM users WHERE id = ?').get(req.session.userId);
+    return res.render('profile', {
+      success: "Display name successfully updated",
       user: updatedUser
     });
   }

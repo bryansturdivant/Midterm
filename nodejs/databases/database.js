@@ -27,7 +27,8 @@ db.exec(
         display_name TEXT NOT NULL,
         customization_field TEXT,
         account_lockout TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_login DATETIME)`
 );
 
 db.prepare(
@@ -69,8 +70,8 @@ console.log("printing after comments")
 db.exec(
     `CREATE TABLE IF NOT EXISTS login_attempts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER REFERENCES users(id),
         ip_address TEXT NOT NULL,
+        username TEXT NOT NULL,
         attempt_time DATETIME DEFAULT CURRENT_TIMESTAMP,
         success INTEGER DEFAULT 0
         )`
@@ -79,6 +80,14 @@ db.exec(
 
 
 console.log('printing after login attempts')
+
+// Create index for faster lookups on IP address and username combination
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_username 
+  ON login_attempts(ip_address, username, attempt_time)
+`);
+
+console.log("printing after ip lookup")
 
 //for resetting passwords - i'll have to look into this a little bit more 
 db.exec(
