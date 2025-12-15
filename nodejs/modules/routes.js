@@ -123,17 +123,6 @@ router.post('/login', async (req, res) => {
     `SELECT * FROM users WHERE username = ?`
   ).get(username);
 
-  // if (user) {
-  //   req.session.userId = user.id;
-  //   req.session.username = user.username;
-  //   return res.redirect('/comments');//maybe make a welcome 'user name' at homepage instead
-  // }
-  // else{
-  //   console.log("login failed for: ", username);
-  //   return res.render('login', {
-  //     error: "Username or Password is incorrect. Please try again.",
-  //   });
-  // }
 
   if (!user) {
     return res.render('login', {
@@ -179,4 +168,48 @@ router.post('/logout', (req, res) => {
 
 });
 
+
+router.post('/profile', async (req, res) => {
+  const username = req.session.username;
+  
+  if(req.body.newPassword){
+    const currentPass = req.body.currentPassword;
+
+    const user = db.prepare(
+      `SELECT * FROM users WHERE username = ?`
+    ).get(username);
+    
+    const comparedPassword = await comparePassword(currentPass, user.password);
+    
+    if(!comparedPassword){
+      return res.render('profile', {
+        error: "Must enter correct password to change to a new password",
+        user
+      });
+    }
+    
+    const validatedPassword = validatePassword(req.body.newPassword);
+    if (!validatedPassword.valid){
+      return res.render('profile', {
+        error: "Must enter a password that fulfills all requirements",
+        errorList: validatedPassword.errors,
+        user
+      });
+    }
+    
+    const hashedPassword = await hashPassword(req.body.newPassword);
+    db.prepare('UPDATE users SET password = ? WHERE username = ?')
+      .run(hashedPassword, username);
+    
+    const updatedUser = db.prepare('SELECT id, username, display_name, email FROM users WHERE username = ?')
+      .get(username);
+    
+    return res.render('profile', {
+      success: "Password successfully updated", 
+      user: updatedUser
+    });
+  }
+  
+  res.redirect('/profile');
+});
 module.exports = router; 

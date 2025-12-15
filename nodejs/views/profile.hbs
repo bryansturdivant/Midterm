@@ -14,12 +14,22 @@
             
 
             <h1>{{user.display_name}}'s Profile Page</h1>
+            {{#if error}}
+                <div class = "error-message">
+                    <p>❌ {{error}}</p>
+                    <ul>
+                        {{#each errorList}}
+                        <li>{{this}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+            {{/if}}
 
             <!-- Account Management -->
             <div class="card">
                 <h2>Account Management</h2>
 
-                <form id="change-password-form">
+                <form id="change-password-form" method="POST" action="/profile"> 
                     <h3>Change Password</h3>
                     <label for="current-password">Current Password</label>
                     <input type="password" id="current-password" name="currentPassword" required>
@@ -29,8 +39,15 @@
 
                     <button type="submit" class="btn">Update Password</button>
                 </form>
+                <script>
+                document.getElementById('change-password-form').addEventListener('submit', function(e) {
+                    console.log('Form submitted!');
+                    console.log('Current password:', document.getElementById('current-password').value);
+                    console.log('New password:', document.getElementById('new-password').value);
+                });
+                </script>
 
-                <form id="change-email-form">
+                <form id="change-email-form" method ="POST" action="/profile">
                     <h3>Change Email</h3>
                     <label for="current-password-email">Current Password</label>
                     <input type="password" id="current-password-email" name="currentPasswordEmail" required>
@@ -41,7 +58,7 @@
                     <button type="submit" class="btn">Update Email</button>
                 </form>
 
-                <form id="change-display-name-form">
+                <form id="change-display-name-form" method="POST" action="/profile">
                     <h3>Change Display Name</h3>
                     <label for="display-name">New Display Name</label>
                     <input type="text" id="display-name" name="displayName" maxlength="30" required>
