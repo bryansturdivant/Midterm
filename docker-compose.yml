@@ -7,6 +7,8 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
+    env_file:
+      - ./nodejs/modules/.env
     volumes:
       - ./nodejs/databases:/app/databases
       - ./nodejs:/app:cached

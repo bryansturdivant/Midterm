@@ -2,7 +2,8 @@
 
 //Trying mailersend because the other way wasn't working 
 const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
-
+console.log('MAILERSEND_API_KEY exists:', !!process.env.MAILERSEND_API_KEY);
+console.log('MAILERSEND_API_KEY first 10 chars:', process.env.MAILERSEND_API_KEY?.substring(0, 10));
 const mailerSend = new MailerSend({
     apiKey: process.env.MAILERSEND_API_KEY,
 });

@@ -7,6 +7,10 @@ const db = require('../databases/database');
 const {validatePassword, hashPassword, comparePassword} = require('./auth');
 const loginTracker = require('./login-tracker');
 const {checkLoginLockout, getClientIP} = require('./auth-middleware')
+const crypto = require('crypto')//For generatinng a reset token
+const {sendEmail} = require('./email')
+
+
 
 
   
@@ -21,6 +25,14 @@ router.get('/login', (req, res)=>{
 
 router.get('/register', (req, res) => {
   res.render('register');
+});
+
+router.get('/forgot-password', (req, res)=>{
+  res.render('forgot-password');
+});
+
+router.get('/reset-password', (req, res)=>{
+  res.render('reset-password');
 });
 
 router.get('/profile', (req, res) => {
@@ -298,4 +310,38 @@ router.post('/profile', async (req, res) => {
   
   res.redirect('/profile');
 });
+
+
+router.post('/forgot-password', async(req,res)=>{
+  //const username = req.session.username;
+  const {email} = req.body;
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email)
+  console.log(`Users email: ${email}`);
+
+
+  if(!user){
+    console.log(`Could not find user with email: ${email}`)
+    return res.render('forgot-password', {success: 'If an account with that email exists, a password reset link will be sent shortly' })
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');// generates a random token string for the password reset 
+  const expires = Date.now() + 60 * 60 * 1000; // 1 hour
+
+  db.prepare(`UPDATE users SET password_reset_token = ?, password_reset_expire = ? WHERE id = ?`).run(token, expires, user.id);
+
+// Create the reset link
+  const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${token}`;
+  console.log('About to send email to:', email); // Debug log
+  console.log('Reset link:', resetLink); // Debug log
+  // Send the email
+  await sendEmail(
+    email,
+    'Password Reset Request',
+    `Click this link to reset your password: ${resetLink}\n\nThis link expires in 1 hour.`
+  );
+  //console.log('Email send result:', result); // Debug log
+  res.render('forgot-password', { success: 'If an account with that email exists, a password reset link will be sent shortly' });
+})
+
+
 module.exports = router; 

@@ -28,7 +28,9 @@ db.exec(
         customization_field TEXT,
         account_lockout TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        last_login DATETIME)`
+        last_login DATETIME,
+        password_reset_token TEXT,
+        password_reset_expire INTEGER)`
 );
 
 db.prepare(
