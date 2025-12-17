@@ -25,6 +25,7 @@ app.engine('hbs', engine({
 }));
 app.set('view engine', 'hbs');
 app.set('views', './views');
+app.set('trust proxy', 1);
 
 //middleware
 app.use(express.json());

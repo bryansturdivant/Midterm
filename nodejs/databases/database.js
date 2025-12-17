@@ -35,7 +35,7 @@ db.exec(
 
 db.prepare(
     `INSERT INTO users (username, email, password, display_name) VALUES (?, ?, ?, ?)`
-).run("testuser", "testemail", "testpassword", "testdisplayname");
+).run("testUser", "testEmail", "testPassword9~", "testDisplay");
 
 
 

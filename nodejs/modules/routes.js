@@ -32,7 +32,23 @@ router.get('/forgot-password', (req, res)=>{
 });
 
 router.get('/reset-password', (req, res)=>{
-  res.render('reset-password');
+  const { token } = req.query;
+
+  if (!token) {
+    return res.redirect('/login?error=invalid-reset');
+  }
+
+  const user = db.prepare(`
+    SELECT id
+    FROM users
+    WHERE password_reset_token = ?
+      AND password_reset_expire > ?
+  `).get(token, Date.now());
+
+  if (!user) {
+    return res.redirect('/login?error=expired-reset');
+  }
+  res.render('reset-password', {token});
 });
 
 router.get('/profile', (req, res) => {
@@ -325,7 +341,7 @@ router.post('/forgot-password', async(req,res)=>{
   }
 
   const token = crypto.randomBytes(32).toString('hex');// generates a random token string for the password reset 
-  const expires = Date.now() + 60 * 60 * 1000; // 1 hour
+  const expires = Date.now() + 10 * 60 * 1000; // 1 hour
 
   db.prepare(`UPDATE users SET password_reset_token = ?, password_reset_expire = ? WHERE id = ?`).run(token, expires, user.id);
 
@@ -341,6 +357,37 @@ router.post('/forgot-password', async(req,res)=>{
   );
   //console.log('Email send result:', result); // Debug log
   res.render('forgot-password', { success: 'If an account with that email exists, a password reset link will be sent shortly' });
+});
+
+router.post('/reset-password', async (req, res)=> {
+  const {token, password, confirmPassword} = req.body; // do them all at once
+  if(!token){
+    return res.render('login', {error: "No reset token available for this user"});
+  }
+  const user = db.prepare(`SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expire > ?`).get(token, Date.now());
+
+  if(!user){
+    return res.render('login', {error: "No reset token available for this user"});
+  }
+
+  // const newPassword = req.body.password;
+  // const confirmPassword = req.body.confirmPassword;
+
+  if (password !== confirmPassword){
+    return res.render('reset-password', {error: "The passwords you entered do not match"});
+  }
+
+  const validation = validatePassword(password);
+  if(!validation.valid){
+    return res.render('reset-password',{error: "The password you entered must meet all requirements.", errorList: validation.errors});
+  }
+  const hashedPassword = await hashPassword(password);
+
+  db.prepare(`UPDATE users SET password = ?, password_reset_token = NULL, password_reset_expire = NULL WHERE id = ? `).run(hashedPassword, user.id);
+
+  res.render('login', {success: "You have succesfully updated your password!"});
+
+
 })
 
 
