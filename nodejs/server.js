@@ -6,6 +6,9 @@ const SQLiteStore = require('./databases/sessions');
 const path = require('path');
 const authRoutes = require('./modules/auth');
 const {handleError, notFound} = require('./modules/error-handler')
+const {Server} = require('socket.io');
+const http = require('http');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -63,7 +66,40 @@ app.use((req, res) => {
 app.use(notFound);        // 404 handler
 app.use(handleError);     // General error handler
 
+
+
+
+const httpServer = http.createServer(app); // wrap express app in HTTP server
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+// Add Socket.IO event handlers
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+
+  socket.on('requestData', (data) => {
+      socket.emit('response', {
+          success: true,
+          message: 'Data received successfully!',
+          receivedData: data,
+          serverTime: new Date().toISOString()
+      });
+  });
+
+  socket.on('disconnect', () => {
+      console.log('Client disconnected:', socket.id);
+  });
+});
+
+
+
+
+
 //runs the app 
-app.listen(PORT, '0.0.0.0',() => {
+httpServer.listen(PORT, '0.0.0.0',() => {
   console.log(`Server is running on http://<143.198.9.242>:${PORT}`);
 });

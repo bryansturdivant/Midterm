@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Client Example</title>
+</head>
+<body>
+    <h1>Socket.IO Client Example</h1>
+    
+    <div>
+        <button id="requestData">Request Data from Server</button>
+        <p id="status">Status: Not connected</p>
+    </div>
+    
+    <div>
+        <h2>Server Response:</h2>
+        <pre id="response">No data received yet...</pre>
+    </div>
+
+    <!-- Include Socket.IO client library -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script>
+        // Connect to the Socket.IO server
+        const socket = io('http://[domain name]');
+
+        // Update status when connected
+        socket.on('connect', () => {
+            console.log('Connected to server!');
+            document.getElementById('status').textContent = 'Status: Connected (ID: ' + socket.id + ')';
+        });
+
+        // Update status when disconnected
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+            document.getElementById('status').textContent = 'Status: Disconnected';
+        });
+
+        // Listen for 'response' event from server
+        socket.on('response', (data) => {
+            console.log('Received JSON response:', data);
+            
+            // Display the JSON response in a readable format
+            const responseDiv = document.getElementById('response');
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+        });
+
+        // Listen for errors
+        socket.on('error', (error) => {
+            console.error('Socket error:', error);
+            document.getElementById('response').textContent = 'Error: ' + error.message;
+        });
+
+        // Handle button click
+        const button = document.getElementById('requestData');
+        button.addEventListener('click', () => {
+            console.log('Requesting data from server...');
+            
+            // Emit 'requestData' event to server with some data
+            socket.emit('requestData', {
+                message: 'Hello from client!',
+                timestamp: new Date().toISOString(),
+                clientId: socket.id
+            });
+        });
+    </script>
+</body>
+</html>
