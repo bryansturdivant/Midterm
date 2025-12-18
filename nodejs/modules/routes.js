@@ -27,6 +27,11 @@ router.get('/register', (req, res) => {
   res.render('register');
 });
 
+router.get('/chat', (req, res) => {
+  const messages = db.prepare(`SELECT * FROM chat_messages ORDER BY created_at`).all();
+  res.render('chat', {messages});
+});
+
 router.get('/forgot-password', (req, res)=>{
   res.render('forgot-password');
 });
@@ -218,6 +223,8 @@ router.post('/login', checkLoginLockout, async (req, res) => {
   //This is where we create a session - super important
   req.session.userId = user.id;
   req.session.username = user.username;
+  req.session.displayName = user.display_name
+  req.session.isLoggedIn = true;
   res.redirect('/comments');
 });
 

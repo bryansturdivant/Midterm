@@ -9,15 +9,7 @@ const db = new Database(dbPath);
 console.log("Printing from the top");
 
 
-//JUST FOR TESTING, MAKE SURE TO REMOVE LATER TO AVOID HEADACHE
-db.exec(`DROP TABLE IF EXISTS comments;`);
-db.exec(`DROP TABLE IF EXISTS sessions;`);
-db.exec(`DROP TABLE IF EXISTS login_attempts;`);
-db.exec(`DROP TABLE IF EXISTS reset_tokens;`);
-db.exec(`DROP TABLE IF EXISTS users;`);
-
-
-
+//Creates the users table 
 db.exec(
     `CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,15 +25,20 @@ db.exec(
         password_reset_expire INTEGER)`
 );
 
-db.prepare(
-    `INSERT INTO users (username, email, password, display_name) VALUES (?, ?, ?, ?)`
-).run("testUser", "testEmail", "testPassword9~", "testDisplay");
+const userCount = db.prepare('SELECT COUNT(*) AS count FROM users').get().count;
+if (userCount === 0) {
+    const insert = db.prepare('INSERT INTO users (username, email, password, display_name) VALUES (?, ?, ?, ?)');
+    insert.run('testUser', 'testEmail', 'testPassword9~', 'testDisplay');
+    insert.run('blahS', 'boop@gmail.com', 'password', 'blahSDisplay0');
+    insert.run('blahZZZ', 'boop1@gmail.com', 'password', 'blahSDisplay1');
+    insert.run('blahIII', 'boop2@gmail.com', 'password', 'blahSDisplay2');
+    insert.run('blahXXX', 'boop3@gmail.com', 'password', 'blahSDisplay3');
+    insert.run('blahXYZ', 'boop4@gmail.com', 'password', 'blahSDisplay4');
+    console.log('Inserted initial test users.');
+}
 
 
-
-console.log("printing after users table");
-
-
+//Creates the sessions table
 db.exec(
     `CREATE TABLE IF NOT EXISTS sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -50,11 +47,7 @@ db.exec(
 );
 
 
-
-console.log("Printing after sessions")
-
-
-
+//Creates the comments table 
 db.exec(
     `CREATE TABLE IF NOT EXISTS comments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,12 +56,13 @@ db.exec(
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)`
 );
 
-db.prepare(
-    `INSERT INTO comments (userId, comment) VALUES (?, ?)`
-).run(1, "This is the first comment!");
+const commentCount = db.prepare('SELECT COUNT(*) AS count FROM comments').get().count;
+if (commentCount === 0) {
+    db.prepare('INSERT INTO comments (userId, comment) VALUES (?, ?)').run(1, 'This is the first comment!');
+    console.log('Inserted initial comment.');
+}
 
-console.log("printing after comments")
-
+//Login attempts table 
 db.exec(
     `CREATE TABLE IF NOT EXISTS login_attempts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,17 +75,14 @@ db.exec(
 
 
 
-console.log('printing after login attempts')
-
 // Create index for faster lookups on IP address and username combination
 db.exec(`
   CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_username 
   ON login_attempts(ip_address, username, attempt_time)
 `);
 
-console.log("printing after ip lookup")
 
-//for resetting passwords - i'll have to look into this a little bit more 
+//for resetting passwords
 db.exec(
     `CREATE TABLE IF NOT EXISTS reset_tokens (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -99,30 +90,19 @@ db.exec(
         )`
 );
 
-console.log("printing after resetting password");
 
-const insert = db.prepare('INSERT INTO users (username, email, password, display_name) VALUES (?, ?, ?, ?)');
-insert.run('blahS', 'boop@gmail.com', 'password', 'blahSDisplay0');
-console.log('inserted');
-insert.run('blahZZZ', 'boop1@gmail.com', 'password', 'blahSDisplay1');
-console.log('inserted');
-insert.run('blahIII', 'boop2@gmail.com', 'password', 'blahSDisplay2');
-console.log('inserted');
-insert.run('blahXXX', 'boop3@gmail.com', 'password', 'blahSDisplay3');
-console.log('inserted');
-insert.run('blahXYZ', 'boop4@gmail.com', 'password', 'blahSDisplay4');
+//chat messages table 
+db.exec(
+    `CREATE TABLE IF NOT EXISTS chat_messages(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL REFERENCES users(id),
+        message TEXT NOT NULL,
+        displayName TEXT NOT NULL,
+        created_at TEXT NOT NULL)`
+);
 
 
-const users = db.prepare('SELECT * FROM users').all();
-
-
-users.forEach((user) => {
-    console.log(`ID: ${user.id}, username: ${user.email}, email: ${user.email}, password: ${user.password}, Display Name: ${user.display_name}, created at: ${user.created_at}`);
-});
-
-
-
-
+console.log('Database initialized succesfully');
 
 module.exports = db;
 

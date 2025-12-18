@@ -3,65 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socket.IO Client Example</title>
+    <title>Book Nerds - Live Chat</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <h1>Socket.IO Client Example</h1>
-    
-    <div>
-        <button id="requestData">Request Data from Server</button>
-        <p id="status">Status: Not connected</p>
-    </div>
-    
-    <div>
-        <h2>Server Response:</h2>
-        <pre id="response">No data received yet...</pre>
-    </div>
+    {{> header}}
+
+    <main class="container">
+        <section class="hero">
+            <h1>Live Chat</h1>
+            <p class="tagline">Chat with fellow Book Nerds in real-time!</p>
+        </section>
+
+        <section class="welcome-section">
+            <!-- Connection Status -->
+            <div id="status" class="success-message">Status: Not connected</div>
+
+            <!-- Chat Messages -->
+            <div id="messages" style="height: 300px; overflow-y: auto; margin-bottom: 1rem; padding: 0.5rem; background: #f8f9fa; border-radius: 5px;">
+                {{#each messages}}
+                    <p>[{{this.created_at}}] {{this.displayName}}: {{this.message}}</p>
+                {{/each}}
+
+            </div>
+
+
+            <!-- Chat Input -->
+            <div style="display: flex; gap: 0.5rem;">
+                <input id="chatInput" type="text" placeholder="Type a message..." style="flex: 1; padding: 0.6rem 1rem; border-radius: 5px; border: 1px solid #ccc;" />
+                <button id="sendChat" class="cta-button">Send</button>
+            </div>
+        </section>
+    </main>
+
+    {{> footer}}
 
     <!-- Include Socket.IO client library -->
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
     <script>
-        // Connect to the Socket.IO server
-        const socket = io('http://[domain name]');
 
-        // Update status when connected
+    // Disconnect old socket if it exists
+    if (window.socket) {
+        window.socket.disconnect();
+        console.log('Old socket disconnected');
+    }
+
+    // Create a new socket and store it globally
+    window.socket = io(); 
+
+    const socket = window.socket; // easier local reference
+
+        const status = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+        const chatInput = document.getElementById('chatInput');
+        const sendChat = document.getElementById('sendChat');
+
+        // Connection status
         socket.on('connect', () => {
-            console.log('Connected to server!');
-            document.getElementById('status').textContent = 'Status: Connected (ID: ' + socket.id + ')';
+            console.log('Socket connected, ID: ', socket.id);
+            status.textContent = 'Status: Connected (ID: ' + socket.id + ')';
+            status.className = 'success-message';
         });
-
-        // Update status when disconnected
         socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-            document.getElementById('status').textContent = 'Status: Disconnected';
+            console.log('Socket Disconnected');
+            status.textContent = 'Status: Disconnected';
+            status.className = 'error-message';
         });
 
-        // Listen for 'response' event from server
-        socket.on('response', (data) => {
-            console.log('Received JSON response:', data);
-            
-            // Display the JSON response in a readable format
-            const responseDiv = document.getElementById('response');
-            responseDiv.textContent = JSON.stringify(data, null, 2);
+        // Receive chat messages from server
+        socket.on('chat', (data) => {
+            const p = document.createElement('p');
+            p.textContent = `[${new Date(data.timestamp).toLocaleTimeString()}] ${data.user}: ${data.message}`;
+            messagesDiv.appendChild(p);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // auto-scroll
         });
 
-        // Listen for errors
+        // Optional: listen for errors
         socket.on('error', (error) => {
             console.error('Socket error:', error);
-            document.getElementById('response').textContent = 'Error: ' + error.message;
+            status.textContent = 'Error: ' + error.message;
+            status.className = 'error-message';
         });
 
-        // Handle button click
-        const button = document.getElementById('requestData');
-        button.addEventListener('click', () => {
-            console.log('Requesting data from server...');
-            
-            // Emit 'requestData' event to server with some data
-            socket.emit('requestData', {
-                message: 'Hello from client!',
-                timestamp: new Date().toISOString(),
-                clientId: socket.id
-            });
+        // Send chat message
+        function sendMessage() {
+            const msg = chatInput.value.trim();
+            if (!msg) return;
+            socket.emit('chat', msg);
+            chatInput.value = '';
+        }
+
+        sendChat.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
         });
     </script>
 </body>

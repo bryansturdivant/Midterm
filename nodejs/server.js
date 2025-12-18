@@ -8,6 +8,8 @@ const authRoutes = require('./modules/auth');
 const {handleError, notFound} = require('./modules/error-handler')
 const {Server} = require('socket.io');
 const http = require('http');
+const db = require('./databases/database');
+
 
 
 const app = express();
@@ -36,16 +38,19 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 //session middleware to handle cookies automatically
-app.use(session({
-  store: sessionStore, //stores sessions in sqlite 
-  secret: 'book-lovers-key-2025',//session secret
+const sessionMiddleware = session({
+  store: sessionStore,
+  secret: 'book-lovers-key-2025',
   resave: false,
   saveUninitialized: false,
   cookie: {
-      secure: false, // Set to true if using HTTPS
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: false,
+    maxAge: 24 * 60 * 60 * 1000
   }
-}));
+});
+
+app.use(sessionMiddleware);
+
 
 //This allows user info to be passed in to every route without doing it for each one
 app.use((req, res, next) => {
@@ -70,6 +75,7 @@ app.use(handleError);     // General error handler
 
 
 const httpServer = http.createServer(app); // wrap express app in HTTP server
+
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
@@ -77,17 +83,45 @@ const io = new Server(httpServer, {
   }
 });
 
+// Share session with Socket.IO (official method)
+io.engine.use(sessionMiddleware);
+
 // Add Socket.IO event handlers
 io.on('connection', (socket) => {
+  const session = socket.request.session;
+  const userId = session.userId;
+  const username = session.username;
+  const displayName = session.displayName;
+  const isLoggedIn = session.isLoggedIn;
   console.log('Client connected:', socket.id);
+  console.log('User:', username, 'ID: ', userId);
+    // Authentication check
+    if (!isLoggedIn) {
+        socket.emit('error', { message: 'Authentication required' });
+        socket.disconnect();
+        return;
+    }
 
   socket.on('requestData', (data) => {
       socket.emit('response', {
           success: true,
-          message: 'Data received successfully!',
-          receivedData: data,
-          serverTime: new Date().toISOString()
+          message: `Hello ${username}`,
+          userId: userId,
+          data:data
       });
+  });
+  // Chat event
+  socket.on('chat', (message) => {
+    console.log(`Received message from client: ${message}`);
+      db.prepare(`INSERT INTO chat_messages (userId, message, displayName, created_at) VALUES (?, ?, ?, ?)`).run(userId, message, displayName, new Date().toISOString());
+
+      console.log('Inserted into DB: ', userId, displayName, message);
+      io.emit('chat', {
+          user: displayName,
+          message: message,
+          timestamp: new Date().toISOString()
+      });
+      console.log('Messaged has been displayed');
   });
 
   socket.on('disconnect', () => {
