@@ -8,7 +8,8 @@ const db = new Database(dbPath);
 
 console.log("Printing from the top");
 
-
+// WARNING: This deletes ALL users! Use only for development/testing
+db.exec(`DROP TABLE IF EXISTS users;`);
 //Creates the users table 
 db.exec(
     `CREATE TABLE IF NOT EXISTS users (
@@ -22,7 +23,8 @@ db.exec(
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         last_login DATETIME,
         password_reset_token TEXT,
-        password_reset_expire INTEGER)`
+        password_reset_expire INTEGER,
+        profile_color TEXT NOT NULL DEFAULT '#000000')`
 );
 
 const userCount = db.prepare('SELECT COUNT(*) AS count FROM users').get().count;

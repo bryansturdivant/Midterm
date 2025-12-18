@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const db = require('../databases/database');
-const {validatePassword, hashPassword, comparePassword} = require('./auth');
+const {validatePassword, hashPassword, comparePassword, validateDisplayName} = require('./auth');
 const loginTracker = require('./login-tracker');
 const {checkLoginLockout, getClientIP} = require('./auth-middleware')
 const crypto = require('crypto')//For generatinng a reset token
@@ -68,7 +68,7 @@ router.get('/profile', (req, res) => {
 router.get('/comments', (req, res)=> {
   //res.render('comments', {comments: comments});// comments:comments is passing the comments into view
   const comments = db.prepare(
-    `SELECT comments.comment, comments.timestamp AS date, users.username, users.display_name
+    `SELECT comments.comment, comments.timestamp AS date, users.username, users.display_name, users.profile_color
     FROM comments
     LEFT JOIN users ON users.id = comments.userId
     ORDER BY comments.timestamp DESC`
@@ -139,10 +139,12 @@ router.post('/comments', (req, res) => {
   res.redirect('/comments'); //shows the updated list/page
   });
   
+
+//registering a new profile  
 router.post('/register', async (req, res) => {
 
 try{
-  const {username, email, password, display_name} = req.body;
+  const {username, email, password, display_name, profileColor} = req.body;
     // Validate input
   if (!username || !password) {
     return res.render('register', {error: 'Must enter a username and password'});
@@ -169,13 +171,26 @@ try{
       error: "Username already exists. Please choose a different username.",
     });
   }
+  //Check if display name works and meets requirements
+
+  const validationDisplay = validateDisplayName(display_name);
+
+  if(!validationDisplay.valid){
+    return res.render('register', {error: "Display Name does not meet the requirements", errorList: validationDisplay.errors});
+  } 
+
+  const existingDisplay = db.prepare(`SELECT * FROM users WHERE display_name = ?`).get(display_name);
+
+  if(existingDisplay){
+    return res.render('register', {error: "Display Name already exists. Please chooose a different display name.",})
+  }
   // Hash the password before storing
   const passwordHash = await hashPassword(password);
 
   db.prepare(
-    `INSERT INTO users (username, email, password, display_name) 
-    VALUES (?, ?, ?, ?)`
-  ).run(username, email, passwordHash, display_name);
+    `INSERT INTO users (username, email, password, display_name, profile_color) 
+    VALUES (?, ?, ?, ?, ?)`
+  ).run(username, email, passwordHash, display_name, profileColor);
     res.redirect('/login');
 }
   catch(error){
@@ -297,7 +312,7 @@ router.post('/profile', async (req, res) => {
     }
     
     db.prepare('UPDATE users SET email = ? WHERE username = ?').run(newEmail, username);
-    const updatedUser = db.prepare('SELECT id, username, display_name, email FROM users WHERE username = ?').get(username);
+    const updatedUser = db.prepare('SELECT id, username, display_name, profile_color, email FROM users WHERE username = ?').get(username);
 
     return res.render('profile', {
       success: "Email successfully updated",
@@ -316,6 +331,7 @@ router.post('/profile', async (req, res) => {
     const result = db.prepare(
       'UPDATE users SET display_name = ? WHERE id = ?').run(newDisplay, req.session.userId);
 
+
   // Safety check for debugging
   if (result.changes === 0) {
     return res.render('profile', {
@@ -324,11 +340,24 @@ router.post('/profile', async (req, res) => {
     });
   }
 
-    const updatedUser = db.prepare('SELECT id, username, display_name, email FROM users WHERE id = ?').get(req.session.userId);
+    const updatedUser = db.prepare('SELECT id, username, display_name, profile_color, email FROM users WHERE id = ?').get(req.session.userId);
     return res.render('profile', {
       success: "Display name successfully updated",
       user: updatedUser
     });
+  }
+
+  else if (req.body.profileColor){
+    const newColor = req.body.profileColor;
+
+    if(!newColor){
+      return res.render('profile', {error: "Color can't be empty"}, user);
+    }
+    
+    db.prepare('UPDATE users SET profile_color = ? WHERE id = ?').run(newColor, req.session.userId);
+
+    const updatedUser = db.prepare('SELECT id, username, display_name, email, profile_color FROM users WHERE id = ? ').get(req.session.userId);
+    return res.render('profile', {success: "Profile color was successfully updated", user: updatedUser});
   }
   
   res.redirect('/profile');

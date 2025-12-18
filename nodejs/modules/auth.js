@@ -48,6 +48,21 @@ function validatePassword(password) {
   };
 }
 
+function validateDisplayName(displayName){
+  const errors = [];
+  if(!displayName){
+    errors.push("Display name is required");
+    return {valid: false, errors};
+  }
+  if(displayName.length < 4){
+    errors.push('Display Name must be at least four characters long')
+  }
+
+  return {
+    valid: errors.length ===0,
+    errors: errors
+  };
+}
 // simple function that will hash a password.
 async function hashPassword(password) {
   return await argon2.hash(password, ARGON2_OPTIONS);
@@ -63,5 +78,6 @@ async function comparePassword(password, hash) {
 module.exports = {
   validatePassword,
   hashPassword,
-  comparePassword
+  comparePassword,
+  validateDisplayName
 };
