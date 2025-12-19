@@ -1,6 +1,4 @@
-// sqlite-session-store.js
-
-// Using code from the textbook as the basis for this 
+//Custom SQLite session store implementation for express-session. Manages session persistence in the database.
 
 const { Store } = require('express-session');
 const Database = require('better-sqlite3');

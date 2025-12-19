@@ -14,7 +14,8 @@ const {sendEmail} = require('./email')
 
 
   
-//Routes
+//Gets for all of the pages
+
 router.get('/', (req, res) => {
   res.render('index');
 });
@@ -36,6 +37,7 @@ router.get('/forgot-password', (req, res)=>{
   res.render('forgot-password');
 });
 
+//prepares the reset-password page 
 router.get('/reset-password', (req, res)=>{
   const { token } = req.query;
 
@@ -56,6 +58,7 @@ router.get('/reset-password', (req, res)=>{
   res.render('reset-password', {token});
 });
 
+//prepares the profile page 
 router.get('/profile', (req, res) => {
   const user = db.prepare(
     `SELECT id, username, display_name, email FROM users WHERE id = ?
@@ -65,6 +68,7 @@ router.get('/profile', (req, res) => {
   res.render('profile', {user});
 });
 
+//gets comments from sql database and shows them on the webpage
 router.get('/comments', (req, res)=> {
   //res.render('comments', {comments: comments});// comments:comments is passing the comments into view
   const comments = db.prepare(
@@ -178,7 +182,7 @@ try{
   if(!validationDisplay.valid){
     return res.render('register', {error: "Display Name does not meet the requirements", errorList: validationDisplay.errors});
   } 
-
+  //check to see if an existing displayname exists
   const existingDisplay = db.prepare(`SELECT * FROM users WHERE display_name = ?`).get(display_name);
 
   if(existingDisplay){
@@ -220,8 +224,9 @@ router.post('/login', checkLoginLockout, async (req, res) => {
     })
   }
   //compare the entered password with the stored hashed password
-  const passwordMatch = await comparePassword(password, user.password);
 
+  const passwordMatch = await comparePassword(password, user.password);
+  //make sure password matches
 
   if (!passwordMatch){
     loginTracker.recordAttempt(ipAddress, username, false);
@@ -257,14 +262,14 @@ router.post('/logout', (req, res) => {
 
 });
 
-
+//gets profile page info for the user
 router.post('/profile', async (req, res) => {
   const username = req.session.username;
   const user = db.prepare(`SELECT * FROM users WHERE username = ?`).get(username);
   if (!user){
     return res.redirect('login')
   }
-  
+  //for changing password and validating and all that
   if(req.body.newPassword){
     const currentPass = req.body.currentPassword;
 
@@ -286,7 +291,7 @@ router.post('/profile', async (req, res) => {
         user
       });
     }
-    
+    //hasing password
     const hashedPassword = await hashPassword(req.body.newPassword);
     db.prepare('UPDATE users SET password = ? WHERE username = ?')
       .run(hashedPassword, username);
@@ -298,7 +303,7 @@ router.post('/profile', async (req, res) => {
       success: "Password successfully updated", 
       user: updatedUser
     });
-  }
+  }//changing email 
   else if(req.body.newEmail){
     const newEmail = req.body.newEmail;
     const currentPass = req.body.currentPasswordEmail;
@@ -319,7 +324,7 @@ router.post('/profile', async (req, res) => {
       user: updatedUser
     });
   }
-  else if (req.body.displayName){
+  else if (req.body.displayName){ //changing display name 
     const newDisplay = req.body.displayName;
 
     if(!newDisplay){
@@ -347,6 +352,7 @@ router.post('/profile', async (req, res) => {
     });
   }
 
+  //changing profile color 
   else if (req.body.profileColor){
     const newColor = req.body.profileColor;
 
@@ -363,7 +369,7 @@ router.post('/profile', async (req, res) => {
   res.redirect('/profile');
 });
 
-
+//how the user an change their password
 router.post('/forgot-password', async(req,res)=>{
   //const username = req.session.username;
   const {email} = req.body;
@@ -395,6 +401,7 @@ router.post('/forgot-password', async(req,res)=>{
   res.render('forgot-password', { success: 'If an account with that email exists, a password reset link will be sent shortly' });
 });
 
+//where the user actually resets their password - only possible through email link 
 router.post('/reset-password', async (req, res)=> {
   const {token, password, confirmPassword} = req.body; // do them all at once
   if(!token){

@@ -1,4 +1,4 @@
-// modules/password-utils.js
+// Handles password security, password validation and comparison, and display name validation 
 const argon2 = require('argon2');
 
 // Argon2 configuration options

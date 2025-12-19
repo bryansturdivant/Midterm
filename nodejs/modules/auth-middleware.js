@@ -1,5 +1,5 @@
-// modules/auth-middleware.js
-// modules/auth-middleware.js
+//Middleware for checking account lockout status before login and extracting client IP addresses for login tracking.
+
 const loginTracker = require('./login-tracker');
 //const { get } = require("http");
 
