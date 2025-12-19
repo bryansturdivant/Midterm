@@ -26,19 +26,20 @@ function checkLockout(ipAddress, username) {
   // 'unixepoch' tells SQLite to interpret the number as seconds since Jan 1, 1970
   // We divide Date.now() by 1000 to convert from milliseconds to seconds
   const stmt = db.prepare(`
-    SELECT COUNT(*) as count, MAX(attempt_time) as last_attempt
+    SELECT COUNT(*) as count, 
+           MAX(strftime('%s', attempt_time)) as last_attempt_unix
     FROM login_attempts
     WHERE ip_address = ? 
       AND username = ?
       AND success = 0
-      AND datetime(attempt_time) > datetime(?, 'unixepoch')
+      AND strftime('%s', attempt_time) > ?
   `);
   
-  const result = stmt.get(ipAddress, username, cutoffTime / 1000);
+  const result = stmt.get(ipAddress, username, Math.floor(cutoffTime / 1000));
   
   if (result.count >= MAX_ATTEMPTS) {
     // Calculate remaining lockout time
-    const lastAttempt = new Date(result.last_attempt).getTime();
+    const lastAttempt = result.last_attempt_unix * 1000;
     const lockoutEnds = lastAttempt + LOCKOUT_DURATION;
     const remainingTime = Math.max(0, lockoutEnds - Date.now());
     
