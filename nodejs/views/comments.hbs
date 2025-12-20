@@ -32,8 +32,25 @@
                     </div>
                 </div>
                 {{/each}}
-
             </div>
+            
+            {{#if totalPages}}
+            <div class="pagination">
+                {{#if hasPrevPage}}
+                <a href="/comments?page={{subtract currentPage 1}}" class="pagination-btn">← Previous</a>
+                {{else}}
+                <span class="pagination-btn disabled">← Previous</span>
+                {{/if}}
+
+                <span class="page-info">Page {{currentPage}} of {{totalPages}}</span>
+
+                {{#if hasNextPage}}
+                <a href="/comments?page={{add currentPage 1}}" class="pagination-btn">Next →</a>
+                {{else}}
+                <span class="pagination-btn disabled">Next →</span>
+                {{/if}}
+            </div>
+            {{/if}}
         </div>
     </main>
 

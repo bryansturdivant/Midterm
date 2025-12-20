@@ -71,14 +71,30 @@ router.get('/profile', (req, res) => {
 //gets comments from sql database and shows them on the webpage
 router.get('/comments', (req, res)=> {
   //res.render('comments', {comments: comments});// comments:comments is passing the comments into view
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10; // comments per page
+  const offset = (page - 1) * limit;
+
+  // Get total count for pagination
+  const totalComments = db.prepare('SELECT COUNT(*) as count FROM comments').get().count;
+  const totalPages = Math.ceil(totalComments / limit);
+
+  // Get paginated comments
   const comments = db.prepare(
     `SELECT comments.comment, comments.timestamp AS date, users.username, users.display_name, users.profile_color
     FROM comments
     LEFT JOIN users ON users.id = comments.userId
-    ORDER BY comments.timestamp DESC`
-  ).all();
+    ORDER BY comments.timestamp DESC
+    LIMIT ? OFFSET ?`
+  ).all(limit, offset);
 
-  res.render('comments', {comments});
+  res.render('comments', {
+    comments,
+    currentPage: page,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1
+  });
 });
 
 router.get('/comment/new', (req, res) => {
@@ -140,7 +156,7 @@ router.post('/comments', (req, res) => {
   //inserts the new comment into the comments table 
   insertComment.run(req.session.userId, req.body.comment);
 
-  res.redirect('/comments'); //shows the updated list/page
+  res.redirect('/comments?page=1'); // Shows newest comments
   });
   
 

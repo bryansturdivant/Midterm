@@ -26,7 +26,11 @@ console.log('Full database path:', path.join(__dirname, 'databases', 'sessions.d
 app.engine('hbs', engine({
   extname: 'hbs',
   defaultLayout: false,
-  partialsDir: __dirname + '/views/partials'
+  partialsDir: __dirname + '/views/partials',
+  helpers: {
+    add: (a,b) => a + b,
+    subtract: (a,b) => a - b
+  }
 }));
 app.set('view engine', 'hbs');
 app.set('views', './views');
