@@ -42,14 +42,11 @@ A secure, production-ready web application for book lovers to discuss and chat i
 - Comment posting with user attribution
 - Display names and profile colors shown in comments - Colors don't always update after the comment has already been left 
 - Timestamps for all comments
-- Maximum comment length validation (500 characters) - Tried to make this work, but it doesn't actually. 
+- Comment Pagination - Only showing 10 comments per page
+- Maximum comment length validation (500 characters) - Tried to make this work in time for the assignment, but its not quite there 
 
-### Partially Implemented Features
+### Partially Implemented Features and known Bugs
 
-**Comment Pagination**
-- Code implemented but not functioning properly
-- Intended to show 5 comments per page with Previous/Next navigation
-- Pagination controls present in UI
 
 **Comment Truncation**
 - Code implemented for 200-character preview with "Read More" functionality
@@ -57,7 +54,12 @@ A secure, production-ready web application for book lovers to discuss and chat i
 
 **Profile Color Updates**
 - Profile name color customization works for new comments
-- Historical comments may not reflect updated colors consistently
+- Historical comments do not reflect updated colors consistently
+- No "success" message when updating color 
+
+**Display Name Stuff**
+- When changing display name in the profile page, it doesn't go through the same required checks that happen during registration - working on fixing this by sunday evening
+- Display name is shown to user except when they're in the profile page - Then it shows up as "object, object". Trying to figure out why this happens only on the profile page and nowhere else
 
 ## Setup Instructions
 

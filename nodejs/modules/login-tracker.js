@@ -1,4 +1,5 @@
 // Tracks and manages login attempts, implements account lockout logic (5 failed attempts = 15-minute lockout), and cleans up old login attempt records.
+//From Troys textbook
 
 const db = require('../databases/database');
 

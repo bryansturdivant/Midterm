@@ -11,10 +11,11 @@ const http = require('http');
 const db = require('./databases/database');
 
 
-
+//set the app and the port 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+//set session store stuff for all session database information
 const sessionStore = new SQLiteStore({
   db: path.join(__dirname, 'databases', 'sessions.db'),
   table: 'sessions'
@@ -22,7 +23,7 @@ const sessionStore = new SQLiteStore({
 console.log('Full database path:', path.join(__dirname, 'databases', 'sessions.db'));
 
 
-// Configure Handlebars
+// Configure Handlebars - Helpers are for the comment pagination 
 app.engine('hbs', engine({
   extname: 'hbs',
   defaultLayout: false,
@@ -34,14 +35,14 @@ app.engine('hbs', engine({
 }));
 app.set('view engine', 'hbs');
 app.set('views', './views');
-app.set('trust proxy', 1);
+app.set('trust proxy', 1); //very important for nginx proxy server 
 
-//middleware
+//Set the middleware
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
-//session middleware to handle cookies automatically
+//Set Session middleware to handle cookies automatically
 const sessionMiddleware = session({
   store: sessionStore,
   secret: 'book-lovers-key-2025',
@@ -53,6 +54,7 @@ const sessionMiddleware = session({
   }
 });
 
+//use the session middleware
 app.use(sessionMiddleware);
 
 
@@ -64,7 +66,7 @@ app.use((req, res, next) => {
 });
 
 const routes = require('./modules/routes');
-
+//sets home page and routes 
 app.use('/', routes);
 
 // 404 handler
@@ -80,6 +82,7 @@ app.use(handleError);     // General error handler
 
 const httpServer = http.createServer(app); // wrap express app in HTTP server
 
+//Socket stuff
 const io = new Server(httpServer, {
   cors: {
     origin: "*",

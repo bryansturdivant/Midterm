@@ -16,23 +16,28 @@ const {sendEmail} = require('./email')
   
 //Gets for all of the pages
 
+//home page 
 router.get('/', (req, res) => {
   res.render('index');
 });
 
+//login page
 router.get('/login', (req, res)=>{
   res.render('login');
 });
 
+//registration page
 router.get('/register', (req, res) => {
   res.render('register');
 });
 
+//live chat page
 router.get('/chat', (req, res) => {
   const messages = db.prepare(`SELECT * FROM chat_messages ORDER BY created_at`).all();
   res.render('chat', {messages});
 });
 
+//forgot password page
 router.get('/forgot-password', (req, res)=>{
   res.render('forgot-password');
 });
@@ -44,6 +49,7 @@ router.get('/reset-password', (req, res)=>{
   if (!token) {
     return res.redirect('/login?error=invalid-reset');
   }
+//for checking to see if this user exists or if they tried to access this page without the email link - redirect them if they don't have it 
 
   const user = db.prepare(`
     SELECT id
@@ -68,7 +74,7 @@ router.get('/profile', (req, res) => {
   res.render('profile', {user});
 });
 
-//gets comments from sql database and shows them on the webpage
+//gets comments from sql database and shows them on the webpage with pagination 
 router.get('/comments', (req, res)=> {
   //res.render('comments', {comments: comments});// comments:comments is passing the comments into view
   const page = parseInt(req.query.page) || 1;
@@ -97,6 +103,7 @@ router.get('/comments', (req, res)=> {
   });
 });
 
+//new comment page 
 router.get('/comment/new', (req, res) => {
   if(req.session.userId){
     res.render('comment_new');
@@ -121,7 +128,7 @@ router.get('/logout', (req, res) => {
 });
 
 /*
- GET /me - Get current user info (requires authentication)
+ GET /me - Get current user info (requires authentication) - From troys textbook 
  */
 router.get('/me', (req, res) => {
   if (!req.session || !req.session.userId) {
@@ -207,6 +214,7 @@ try{
   // Hash the password before storing
   const passwordHash = await hashPassword(password);
 
+//store everything 
   db.prepare(
     `INSERT INTO users (username, email, password, display_name, profile_color) 
     VALUES (?, ?, ?, ?, ?)`
@@ -265,7 +273,7 @@ router.post('/login', checkLoginLockout, async (req, res) => {
 });
 
 
-
+//logs user out and destroys the session 
 router.post('/logout', (req, res) => {
 
   req.session.destroy(error => {
@@ -289,16 +297,17 @@ router.post('/profile', async (req, res) => {
   if(req.body.newPassword){
     const currentPass = req.body.currentPassword;
 
-
+    //comparing password with hashed password 
     const comparedPassword = await comparePassword(currentPass, user.password);
     
+    //error message if compared password doesn't match
     if(!comparedPassword){
       return res.render('profile', {
         error: "Must enter correct password to change to a new password",
         user
       });
     }
-    
+    //requirements errors 
     const validatedPassword = validatePassword(req.body.newPassword);
     if (!validatedPassword.valid){
       return res.render('profile', {
@@ -360,7 +369,7 @@ router.post('/profile', async (req, res) => {
       user
     });
   }
-
+  //update the user 
     const updatedUser = db.prepare('SELECT id, username, display_name, profile_color, email FROM users WHERE id = ?').get(req.session.userId);
     return res.render('profile', {
       success: "Display name successfully updated",
@@ -449,5 +458,6 @@ router.post('/reset-password', async (req, res)=> {
 
 })
 
+//exports everything out 
 
 module.exports = router; 

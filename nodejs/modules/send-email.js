@@ -1,4 +1,5 @@
-// send-email.js
+// send-email.js, all for resetting password 
+
 const { sendEmail } = require('./email');
 
 // Check that required environment variables are set

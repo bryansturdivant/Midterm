@@ -1,4 +1,5 @@
 //Handles email sending via MailerSend API for password recovery functionality.
+//Had to use maildersend because nodeemail was not working 
 
 
 const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
@@ -7,7 +8,7 @@ console.log('MAILERSEND_API_KEY first 10 chars:', process.env.MAILERSEND_API_KEY
 const mailerSend = new MailerSend({
     apiKey: process.env.MAILERSEND_API_KEY,
 });
-
+//function to send email for password reset 
 async function sendEmail(to, subject, text) {
     const sentFrom = new Sender(process.env.GMAIL_USER, "Book Nerds");
     const recipients = [new Recipient(to)];

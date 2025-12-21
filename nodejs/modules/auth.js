@@ -48,6 +48,7 @@ function validatePassword(password) {
   };
 }
 
+//This is my function for validating display name -  uniqueness, length
 function validateDisplayName(displayName){
   const errors = [];
   if(!displayName){

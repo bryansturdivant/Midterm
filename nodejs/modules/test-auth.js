@@ -1,4 +1,5 @@
-// test-password-utils.js
+// test-password-utils.js, from troys textbook
+
 const { validatePassword, hashPassword, comparePassword } = require('./auth');
 
 async function testPasswordUtils() {

@@ -27,16 +27,31 @@ db.exec(
         profile_color TEXT NOT NULL DEFAULT '#000000')`
 );
 
+//inserting users for testing 
 const userCount = db.prepare('SELECT COUNT(*) AS count FROM users').get().count;
 if (userCount === 0) {
     const insert = db.prepare('INSERT INTO users (username, email, password, display_name) VALUES (?, ?, ?, ?)');
-    insert.run('testUser', 'testEmail', 'testPassword9~', 'testDisplay');
-    insert.run('blahS', 'boop@gmail.com', 'password', 'blahSDisplay0');
-    insert.run('blahZZZ', 'boop1@gmail.com', 'password', 'blahSDisplay1');
-    insert.run('blahIII', 'boop2@gmail.com', 'password', 'blahSDisplay2');
-    insert.run('blahXXX', 'boop3@gmail.com', 'password', 'blahSDisplay3');
-    insert.run('blahXYZ', 'boop4@gmail.com', 'password', 'blahSDisplay4');
-    console.log('Inserted initial test users.');
+    insert.run('bookworm42', 'reader1@gmail.com', 'testPass123!', 'Literary Explorer');
+    insert.run('pageturner88', 'reader2@gmail.com', 'testPass123!', 'Chapter Chaser');
+    insert.run('novel_fan', 'reader3@gmail.com', 'testPass123!', 'Fiction Lover');
+    insert.run('scifi_guru', 'reader4@gmail.com', 'testPass123!', 'Galaxy Reader');
+    insert.run('mystery_buff', 'reader5@gmail.com', 'testPass123!', 'Detective Mind');
+    insert.run('fantasy_knight', 'reader6@gmail.com', 'testPass123!', 'Epic Seeker');
+    insert.run('classic_reader', 'reader7@gmail.com', 'testPass123!', 'Timeless Tales');
+    insert.run('poetry_soul', 'reader8@gmail.com', 'testPass123!', 'Verse Enthusiast');
+    insert.run('thriller_addict', 'reader9@gmail.com', 'testPass123!', 'Suspense Fan');
+    insert.run('romance_heart', 'reader10@gmail.com', 'testPass123!', 'Love Story');
+    insert.run('history_nerd', 'reader11@gmail.com', 'testPass123!', 'Time Traveler');
+    insert.run('bio_reader', 'reader12@gmail.com', 'testPass123!', 'Life Stories');
+    insert.run('comic_collector', 'reader13@gmail.com', 'testPass123!', 'Panel Expert');
+    insert.run('audiobook_pro', 'reader14@gmail.com', 'testPass123!', 'Sound Reader');
+    insert.run('library_mouse', 'reader15@gmail.com', 'testPass123!', 'Quiet Corner');
+    insert.run('speed_reader', 'reader16@gmail.com', 'testPass123!', 'Quick Pages');
+    insert.run('book_club_host', 'reader17@gmail.com', 'testPass123!', 'Discussion Lead');
+    insert.run('rare_books', 'reader18@gmail.com', 'testPass123!', 'Collector');
+    insert.run('young_adult_fan', 'reader19@gmail.com', 'testPass123!', 'YA Explorer');
+    insert.run('non_fiction_mind', 'reader20@gmail.com', 'testPass123!', 'Truth Seeker');
+    console.log('Inserted 20 test users.');
 }
 
 
@@ -58,10 +73,14 @@ db.exec(
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)`
 );
 
+//inserting comments for pagination testing 
 const commentCount = db.prepare('SELECT COUNT(*) AS count FROM comments').get().count;
 if (commentCount === 0) {
-    db.prepare('INSERT INTO comments (userId, comment) VALUES (?, ?)').run(1, 'This is the first comment!');
-    console.log('Inserted initial comment.');
+    for(let i = 1; i < 21; i++ ){
+        db.prepare('INSERT INTO comments (userId, comment) VALUES (?, ?)').run(i, `This is test comment #${i}. This is a test comment`);
+        console.log(`Inserting comment number ${i}`);
+    }
+    
 }
 
 //Login attempts table 
@@ -106,9 +125,6 @@ db.exec(
 
 console.log('Database initialized succesfully');
 
+//export the db module 
 module.exports = db;
 
-//Users: username, pasword(hashed), email, display name, profile customization fields, account lockout fields
-//Sessions: session data linked to users
-//Comments: author(linked to user), text, timestamps, etc
-//Login Attempts: username, IP adress, timestamp, success/failure status
